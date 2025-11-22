@@ -23,15 +23,32 @@ This ensures all your customizations **persist through omarchy updates** without
 - **PostgreSQL** - Relational database with user setup
 
 ### DevOps Tools
+**Kubernetes:**
 - **kubectl** - Kubernetes command-line tool
 - **kubectx** - Fast Kubernetes context switcher
+- **kubens** - Kubernetes namespace switcher
 - **helm** - Kubernetes package manager
 - **k9s** - Kubernetes TUI (Terminal UI)
+- **stern** - Multi-pod log tailing for Kubernetes
+
+**GitOps & CD:**
+- **argocd** - GitOps continuous delivery
+
+**Infrastructure as Code:**
 - **terraform** - Infrastructure as Code tool
 - **ansible** - Configuration management and automation
+
+**Cloud CLIs:**
 - **aws-cli** - Amazon Web Services CLI
 - **gcloud** - Google Cloud Platform CLI
 - **azure-cli** - Microsoft Azure CLI
+
+**Developer Tools:**
+- **github-cli** (gh) - GitHub CLI for workflow automation
+
+**Utilities:**
+- **yq** - YAML/XML/TOML processor
+- **httpie** - User-friendly HTTP client
 
 ### Customizations
 
@@ -201,6 +218,25 @@ mise list                 # Show installed versions
 mise current              # Show active versions
 ```
 
+### Shell Aliases
+
+The dotfiles include convenient aliases for common DevOps commands:
+
+```bash
+k             # kubectl
+dc            # docker compose
+tm            # new_tmux (smart tmux session manager)
+```
+
+**Usage examples:**
+```bash
+k get pods                    # Instead of: kubectl get pods
+k apply -f deployment.yaml    # Instead of: kubectl apply -f deployment.yaml
+dc up -d                      # Instead of: docker compose up -d
+dc down                       # Instead of: docker compose down
+tm                            # Launch tmux session picker
+```
+
 ### DevOps Tools Setup
 
 After installing the DevOps tools, you'll need to configure the cloud CLIs:
@@ -225,12 +261,29 @@ az account list  # List available subscriptions
 az account set --subscription <subscription-id>
 ```
 
+**GitHub CLI:**
+```bash
+gh auth login
+# Follow the interactive setup to authenticate with GitHub
+gh repo list     # List your repositories
+gh pr list       # List pull requests
+```
+
 **Kubernetes:**
 ```bash
 kubectl config view              # View current config
 kubectl config get-contexts      # List available contexts
 kubectx                          # Switch contexts easily
+kubens                           # Switch namespaces easily
 k9s                              # Launch Kubernetes TUI
+stern <pod-name>                 # Tail logs from multiple pods
+```
+
+**ArgoCD:**
+```bash
+argocd login <server>            # Login to ArgoCD server
+argocd app list                  # List applications
+argocd app sync <app-name>       # Sync application
 ```
 
 **Terraform:**
@@ -238,6 +291,15 @@ k9s                              # Launch Kubernetes TUI
 terraform init    # Initialize working directory
 terraform plan    # Preview changes
 terraform apply   # Apply changes
+```
+
+**Utilities:**
+```bash
+# YAML processing
+yq '.spec.replicas' deployment.yaml
+
+# HTTP requests
+http GET https://api.github.com/users/profemzy
 ```
 
 ## Customizing Configurations
