@@ -2,32 +2,38 @@
 
 set -e
 
-HYPRLAND_CONFIG="$HOME/.config/hypr/hyprland.conf"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OVERRIDES_CONFIG="$SCRIPT_DIR/hyprland-overrides.conf"
-SOURCE_LINE="source = $OVERRIDES_CONFIG"
-
-# Check if hyprland config exists
-if [ ! -f "$HYPRLAND_CONFIG" ]; then
-    echo "Hyprland config not found at $HYPRLAND_CONFIG"
-    echo "Please install hyprland first"
-    exit 1
-fi
-
-# Check if overrides config exists
-if [ ! -f "$OVERRIDES_CONFIG" ]; then
-    echo "Overrides config not found at $OVERRIDES_CONFIG"
-    exit 1
-fi
-
-# Check if source line already exists in hyprland.conf
-if grep -Fxq "$SOURCE_LINE" "$HYPRLAND_CONFIG"; then
-    echo "Source line already exists in $HYPRLAND_CONFIG"
-else
-    echo "Adding source line to $HYPRLAND_CONFIG"
-    echo "" >> "$HYPRLAND_CONFIG"
-    echo "$SOURCE_LINE" >> "$HYPRLAND_CONFIG"
-    echo "Source line added successfully"
-fi
-
-echo "Hyprland overrides setup complete!"
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║          Hyprland Customizations - Omarchy Approach            ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Following omarchy best practices, all Hyprland customizations"
+echo "are now integrated directly into the appropriate config files:"
+echo ""
+echo "  📁 ~/.config/hypr/bindings.conf"
+echo "     - Custom browser (Chromium with 0.8 scaling)"
+echo "     - App shortcuts (Discord, Notion)"
+echo "     - Vim-style navigation (h/j/k/l)"
+echo "     - Monitor switching (period/comma)"
+echo "     - Lid switch handling"
+echo ""
+echo "  📁 ~/.config/hypr/monitors.conf"
+echo "     - Monitor scaling (2.0)"
+echo ""
+echo "  📁 ~/.config/hypr/input.conf"
+echo "     - Caps Lock as Ctrl"
+echo "     - Keyboard repeat settings"
+echo "     - Touchpad scroll factor"
+echo ""
+echo "  📁 ~/.config/hypr/looknfeel.conf"
+echo "     - Window gaps (0)"
+echo "     - DPMS settings"
+echo ""
+echo "✅ All customizations are in ~/.config/ and will persist through"
+echo "   omarchy updates."
+echo ""
+echo "💡 To modify settings:"
+echo "   - Edit the files above directly"
+echo "   - Use: hyprctl reload (to apply changes)"
+echo ""
+echo "📝 The old hyprland-overrides.conf has been archived for reference"
+echo ""

@@ -4,7 +4,9 @@ Personal supplemental installation and configuration scripts for [Omarchy](https
 
 ## Overview
 
-This repository contains automated setup scripts to extend Omarchy with additional tools, customized configurations, and development environments. It follows the [Omarchy configuration philosophy](https://learn.omacom.io/2/the-omarchy-manual/65/dotfiles) of keeping user customizations in `~/.config` while preserving core Omarchy files.
+This repository contains automated setup scripts to extend Omarchy with additional tools, customized configurations, and development environments. **All customizations follow the [Omarchy configuration philosophy](https://learn.omacom.io/2/the-omarchy-manual/65/dotfiles)** of keeping user customizations in `~/.config/` while preserving core Omarchy files in `~/.local/share/omarchy/`.
+
+This ensures all your customizations **persist through omarchy updates** without being overwritten.
 
 ## What's Included
 
@@ -16,7 +18,7 @@ This repository contains automated setup scripts to extend Omarchy with addition
 - **stow** - Symlink farm manager for dotfiles
 
 ### Development Environments
-- **Node.js** (v22 LTS) - JavaScript/TypeScript runtime
+- **Node.js** (v25.2.1) - JavaScript/TypeScript runtime
 - **Ruby** (v3.4.7) - Ruby programming language
 - **PostgreSQL** - Relational database with user setup
 
@@ -32,19 +34,45 @@ This repository contains automated setup scripts to extend Omarchy with addition
 - **azure-cli** - Microsoft Azure CLI
 
 ### Customizations
-- **Dotfiles** - Pre-configured from [typecraft-dev/dotfiles](https://github.com/typecraft-dev/dotfiles)
-  - Neovim configuration
-  - Ghostty terminal config (Catppuccin Mocha theme)
-  - tmux configuration
-  - Starship prompt
-  - Zsh configuration
 
-- **Hyprland Overrides** - Custom keybindings and window manager settings
-  - Ghostty as default terminal
-  - Chromium with custom scaling
-  - Vim-style focus navigation (hjkl)
-  - Monitor management for laptops
-  - Custom app launchers (Discord, Notion)
+**Dotfiles** - Pre-configured from [typecraft-dev/dotfiles](https://github.com/typecraft-dev/dotfiles)
+- Neovim configuration
+- Ghostty terminal config (integrated with omarchy theme system)
+- tmux configuration
+- Starship prompt
+- Zsh configuration
+
+**Hyprland Customizations** - All integrated into omarchy's recommended structure in `~/.config/hypr/`:
+
+**Terminal & Browser:**
+- `SUPER + RETURN` - Launch Ghostty terminal
+- `SUPER + B` - Launch Chromium browser (0.8 scale)
+
+**App Shortcuts:**
+- `SUPER + D` - Discord web app
+- `SUPER + G` - Notion
+
+**Window Navigation (Vim-style):**
+- `SUPER + h/j/k/l` - Focus left/down/up/right
+
+**Monitor Management:**
+- `SUPER + period` - Switch to next monitor
+- `SUPER + comma` - Switch to previous monitor
+- `SUPER + SHIFT + period` - Move window to next monitor
+- `SUPER + SHIFT + comma` - Move window to previous monitor
+- `SUPER + SHIFT + ALT + D` - Disable built-in display
+- `SUPER + SHIFT + ALT + F` - Enable built-in display
+- Automatic lid switch handling (laptops)
+
+**Display Settings:**
+- 2.0 monitor scaling for retina displays
+- No window gaps
+- DPMS power management
+
+**Input Customizations:**
+- Caps Lock mapped to Ctrl
+- Faster keyboard repeat (rate: 50, delay: 220)
+- Optimized touchpad scrolling
 
 ## Prerequisites
 
@@ -78,7 +106,7 @@ You can also install components individually:
 ./install-asdf.sh        # Installs mise
 
 # Development tools
-./install-nodejs.sh      # Node.js v22 LTS
+./install-nodejs.sh      # Node.js v25 LTS
 ./install-ruby.sh        # Ruby 3.4.7
 ./install-postgresql.sh  # PostgreSQL database
 
@@ -94,7 +122,7 @@ You can also install components individually:
 # Dotfiles and configs
 ./install-stow.sh        # GNU stow
 ./install-dotfiles.sh    # Clone and apply dotfiles
-./install-hyprland-overrides.sh  # Hyprland customizations
+./install-hyprland-overrides.sh  # Information about Hyprland customizations
 ```
 
 All installation scripts are **idempotent** and can be run multiple times safely.
@@ -104,38 +132,55 @@ All installation scripts are **idempotent** and can be run multiple times safely
 ### Omarchy Configuration Philosophy
 
 Omarchy separates user configurations from system files:
-- **User configs**: `~/.config/` (your customizations)
-- **System files**: `~/.local/share/omarchy/` (Omarchy's defaults)
+- **User configs**: `~/.config/` - Your customizations (safe to edit, persist through updates)
+- **System files**: `~/.local/share/omarchy/` - Omarchy's defaults (don't edit directly)
 
-Always modify files in `~/.config/` to preserve your changes across Omarchy updates.
+**Always modify files in `~/.config/` to preserve your changes across Omarchy updates.**
 
-### Hyprland Overrides
+### Hyprland Customizations
 
-The `hyprland-overrides.conf` file is sourced by Hyprland and contains:
+All Hyprland customizations are integrated directly into omarchy's recommended config structure:
 
-**Terminal & Browser:**
-- `SUPER + RETURN` - Launch Ghostty terminal
-- `SUPER + B` - Launch Chromium browser (0.8 scale)
+**~/.config/hypr/bindings.conf** - Keybindings and app shortcuts
+- Custom browser variable (`$browser = chromium --force-device-scale-factor=0.8`)
+- Discord, Notion app shortcuts
+- Vim-style window navigation (h/j/k/l)
+- Monitor switching and window movement
+- Lid switch handling for laptops
 
-**App Shortcuts:**
-- `SUPER + D` - Discord web app
-- `SUPER + G` - Notion
+**~/.config/hypr/monitors.conf** - Monitor configuration
+- 2.0 scaling for retina displays
+- Default monitor settings
 
-**Window Navigation (Vim-style):**
-- `SUPER + h/j/k/l` - Focus left/down/up/right
+**~/.config/hypr/input.conf** - Keyboard and mouse settings
+- Caps Lock remapped to Ctrl (`kb_options = ctrl:nocaps`)
+- Keyboard repeat rate: 50, delay: 220
+- Touchpad scroll factor: 0.4
 
-**Monitor Management:**
-- `SUPER + SHIFT + D` - Disable built-in display
-- `SUPER + SHIFT + F` - Enable built-in display
-- Automatic lid switch handling
+**~/.config/hypr/looknfeel.conf** - Appearance and layout
+- Window gaps: 0 (no gaps)
+- DPMS power management enabled
+
+This approach ensures **all customizations persist through omarchy updates** since they're in your user config directory, not in omarchy's system files.
 
 ### Ghostty Configuration
 
 Located at `~/.config/ghostty/config` (symlinked from dotfiles):
-- **Theme**: Catppuccin Mocha
+- **Theme**: Automatically follows omarchy system theme
 - **Font size**: 14pt
 - **Background opacity**: 0.95
 - **GTK titlebar**: Disabled
+
+#### Omarchy Theme Integration
+
+Ghostty is configured to automatically switch themes when you change your omarchy system theme:
+
+- Theme colors are imported from `~/.config/omarchy/current/theme/ghostty.conf`
+- When you switch themes using omarchy's theme switcher, Ghostty automatically updates
+- The dotfiles maintain this integration and will not override omarchy's theme switching
+- All available omarchy themes (Tokyo Night, Catppuccin, Gruvbox, etc.) are supported
+
+To switch themes, use omarchy's built-in theme switcher - no manual Ghostty config editing required!
 
 ### Version Management with mise
 
@@ -149,9 +194,9 @@ ruby 3.4.7
 **Common mise commands:**
 ```bash
 mise install              # Install all tools from .tool-versions
-mise install nodejs@22    # Install specific version
-mise use nodejs@22        # Set version for current directory
-mise use -g nodejs@22     # Set version globally
+mise install nodejs@25    # Install specific version
+mise use nodejs@25        # Set version for current directory
+mise use -g nodejs@25     # Set version globally
 mise list                 # Show installed versions
 mise current              # Show active versions
 ```
@@ -199,12 +244,26 @@ terraform apply   # Apply changes
 
 ### Modify Hyprland Settings
 
-Edit your overrides file:
+Edit the appropriate config file in `~/.config/hypr/`:
+
 ```bash
-nano ~/projects/omarchy-supplement/hyprland-overrides.conf
+# Keybindings and app shortcuts
+nano ~/.config/hypr/bindings.conf
+
+# Monitor settings
+nano ~/.config/hypr/monitors.conf
+
+# Input devices (keyboard, mouse, touchpad)
+nano ~/.config/hypr/input.conf
+
+# Look and feel (gaps, layout, DPMS)
+nano ~/.config/hypr/looknfeel.conf
+
+# Environment variables
+nano ~/.config/hypr/envs.conf
 ```
 
-Then reload Hyprland:
+Then reload Hyprland to apply changes:
 ```bash
 hyprctl reload
 ```
@@ -218,7 +277,7 @@ Dotfiles are managed via stow. To customize:
    cd ~/dotfiles
    ```
 
-2. Edit the desired configuration in the appropriate directory
+2. Edit the desired configuration in the appropriate directory:
    - `ghostty/.config/ghostty/config` - Terminal config
    - `nvim/.config/nvim/` - Neovim config
    - `tmux/.config/tmux/` - tmux config
@@ -233,30 +292,39 @@ Personal shell customizations should go in `~/.bashrc` or `~/.zshrc`, which won'
 
 ## Troubleshooting
 
-### Theme Error: "catppuccin-mocha not found"
+### Keybinding Conflicts
 
-**Solution:** Ghostty 1.2.0 changed theme names to Title Case.
+**Issue:** Some custom keybindings conflict with omarchy defaults.
 
-Edit `~/.config/ghostty/config`:
-```
-theme = Catppuccin Mocha  # Correct (Title Case)
-```
+**Solution:** The supplement has resolved common conflicts:
+- `SUPER + SHIFT + D` (Docker) and `SUPER + SHIFT + F` (File Manager) remain unchanged
+- Monitor enable/disable moved to `SUPER + SHIFT + ALT + D/F` to avoid conflicts
 
-Not:
-```
-theme = catppuccin-mocha  # Old format (deprecated)
-```
-
-### Multiple Terminals Launch on SUPER + RETURN
-
-**Cause:** Conflicting keybindings between system config and overrides.
-
-**Solution:** Modify the terminal variable in `~/.config/hypr/bindings.conf` directly:
-```
-$terminal = uwsm-app -- ghostty
+To add your own keybindings, edit `~/.config/hypr/bindings.conf` and use `unbind` before creating new bindings:
+```bash
+unbind = SUPER, X
+bindd = SUPER, X, My App, exec, my-command
 ```
 
-Don't try to override with `unbind` - edit the file directly per Omarchy philosophy.
+### Terminal Theme Not Switching
+
+**Issue:** Ghostty doesn't change theme when switching omarchy themes.
+
+**Solution:** The Ghostty configuration should import from omarchy's theme system. Check that `~/.config/ghostty/config` contains:
+```
+config-file = ~/.config/omarchy/current/theme/ghostty.conf
+```
+
+If it doesn't, edit `~/dotfiles/ghostty/.config/ghostty/config` and add the line above at the top of the file. Changes are immediate since the config is symlinked.
+
+**Verify the integration:**
+```bash
+# Check if omarchy theme file exists
+cat ~/.config/omarchy/current/theme/ghostty.conf
+
+# Should show something like:
+# theme = TokyoNight
+```
 
 ### mise: "missing: ruby@3.4.7" or "missing: nodejs@..."
 
@@ -293,6 +361,15 @@ Reinstall if needed:
 yay -S ghostty
 ```
 
+### Hyprland Settings Not Applying
+
+If your Hyprland customizations aren't working after an omarchy update:
+
+1. Verify settings are in `~/.config/hypr/` files (not in `~/.local/share/omarchy/`)
+2. Reload Hyprland: `hyprctl reload`
+3. Check for syntax errors: Review the specific config file for typos
+4. Test incrementally: Comment out sections to isolate issues
+
 ## File Structure
 
 ```
@@ -308,11 +385,22 @@ omarchy-supplement/
 ├── install-zsh.sh              # Install Zsh
 ├── install-stow.sh             # Install GNU stow
 ├── install-dotfiles.sh         # Clone and apply dotfiles
-├── install-hyprland-overrides.sh  # Apply Hyprland customizations
+├── install-hyprland-overrides.sh  # Info about Hyprland customizations
 ├── set-shell.sh                # Set Zsh as default shell
-├── hyprland-overrides.conf     # Custom Hyprland keybindings/settings
+├── hyprland-overrides.conf.archived  # Archived old config (reference only)
 └── README.md                   # This file
 ```
+
+## Hyprland Configuration Location
+
+**Your Hyprland customizations are in:**
+- `~/.config/hypr/bindings.conf` - Keybindings and shortcuts
+- `~/.config/hypr/monitors.conf` - Monitor configuration
+- `~/.config/hypr/input.conf` - Input device settings
+- `~/.config/hypr/looknfeel.conf` - Appearance and layout
+- `~/.config/hypr/envs.conf` - Environment variables
+
+These files are **safe to edit** and will **persist through omarchy updates**.
 
 ## Version Information
 
