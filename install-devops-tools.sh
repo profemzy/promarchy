@@ -133,19 +133,7 @@ echo "  - gh $(gh --version 2>/dev/null | head -1 || echo '')"
 echo "  - yq $(yq --version 2>/dev/null || echo '')"
 echo "  - httpie $(http --version 2>/dev/null || echo '')"
 echo ""
-echo "Setting up kubectl autocomplete..."
-if ! grep -q "kubectl completion zsh" ~/.zshrc 2>/dev/null; then
-    echo "" >> ~/.zshrc
-    echo "# kubectl autocomplete" >> ~/.zshrc
-    echo "source <(kubectl completion zsh)" >> ~/.zshrc
-    echo "✓ kubectl autocomplete added to ~/.zshrc"
-else
-    echo "✓ kubectl autocomplete already configured"
-fi
-
-echo ""
 echo "Next steps:"
-echo "  - Restart your shell or run: source ~/.zshrc"
 echo "  - Configure AWS: aws configure"
 echo "  - Configure GCloud: gcloud init"
 echo "  - Configure Azure: az login"
