@@ -52,7 +52,7 @@ This ensures all your customizations **persist through omarchy updates** without
 
 ### Customizations
 
-**Dotfiles** - Pre-configured from [typecraft-dev/dotfiles](https://github.com/typecraft-dev/dotfiles)
+**Dotfiles** - Pre-configured from [profemzy/dotfiles](https://github.com/profemzy/dotfiles)
 - Neovim configuration
 - Ghostty terminal config (integrated with omarchy theme system)
 - tmux configuration
