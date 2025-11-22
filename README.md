@@ -496,7 +496,6 @@ All DevOps tools are installed from official Arch/AUR repositories at their late
 - [Hyprland Wiki](https://wiki.hyprland.org)
 - [mise Documentation](https://mise.jdx.dev)
 - [Ghostty Documentation](https://ghostty.org/docs)
-- [TypeCraft Dotfiles](https://github.com/typecraft-dev/dotfiles)
 
 ## License
 
