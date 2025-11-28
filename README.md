@@ -18,8 +18,8 @@ This ensures all your customizations **persist through omarchy updates** without
 - **stow** - Symlink farm manager for dotfiles
 
 ### Development Environments
-- **Node.js** (v25.2.1) - JavaScript/TypeScript runtime (managed by mise)
-- **Ruby** (v3.4.7) - Ruby programming language (managed by mise)
+- **Node.js** (v25) - JavaScript/TypeScript runtime (managed by mise, prefix-pinned)
+- **Ruby** (v3.4) - Ruby programming language (managed by mise, prefix-pinned)
 - **PostgreSQL** - Relational database with user setup
 
 ### DevOps Tools
@@ -112,6 +112,54 @@ chmod +x *.sh
 ```
 
 The installation script is **idempotent** - it will only install components that are missing, so you can safely run it multiple times.
+
+#### Command Line Options
+
+```bash
+./install-all.sh [OPTIONS]
+
+OPTIONS:
+    -n, --dry-run        Show what would be installed without making changes
+    -s, --skip COMP      Skip component(s). Can be used multiple times or comma-separated
+    -v, --verbose        Show detailed output during installation
+    -h, --help           Show this help message
+```
+
+#### Examples
+
+```bash
+# Preview what would be installed
+./install-all.sh --dry-run
+
+# Skip PostgreSQL installation
+./install-all.sh --skip postgresql
+
+# Skip multiple components (comma-separated)
+./install-all.sh -s postgresql,ruby,devops
+
+# Skip multiple components (multiple flags)
+./install-all.sh -s postgresql -s devops
+
+# Verbose dry-run
+./install-all.sh -n -v --skip postgresql
+```
+
+#### Available Components for --skip
+
+| Component | Description |
+|-----------|-------------|
+| `zsh` | Zsh shell |
+| `mise` | mise version manager |
+| `nodejs` | Node.js runtime |
+| `ruby` | Ruby runtime |
+| `postgresql` | PostgreSQL database |
+| `ghostty` | Ghostty terminal |
+| `tmux` | tmux terminal multiplexer |
+| `stow` | GNU stow |
+| `dotfiles` | Dotfiles configuration |
+| `hyprland` | Hyprland info/overrides |
+| `devops` | DevOps tools (kubectl, helm, terraform, etc.) |
+| `shell` | Set Zsh as default shell |
 
 After installation completes, **log out and log back in** for all changes to take effect.
 
@@ -527,10 +575,18 @@ These files are **safe to edit** and will **persist through omarchy updates**.
 ## Version Information
 
 ### Development Tools
-- **Node.js**: 25 (managed by mise, configured in ~/.config/mise/config.toml)
-- **Ruby**: 3.4.7 (managed by mise, configured in ~/.config/mise/config.toml)
+- **Node.js**: 25 (prefix-pinned, auto-updates to 25.x.x)
+- **Ruby**: 3.4 (prefix-pinned, auto-updates to 3.4.x)
 - **PostgreSQL**: Latest stable from Arch repos
 - **mise**: Latest from https://mise.run
+
+### Version Pinning Strategy
+
+This repository uses **prefix pinning** for version management:
+- `node = "25"` - Gets all 25.x.x updates automatically
+- `ruby = "3.4"` - Gets all 3.4.x updates automatically
+
+This provides stability (no breaking major version changes) while keeping tools updated with patches and minor releases. Run `mise upgrade` to update within pinned ranges.
 
 ### Terminal & Shell
 - **Ghostty**: Latest from AUR
