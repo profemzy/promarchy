@@ -121,7 +121,7 @@ You can also install components individually:
 
 ```bash
 # Version manager (required for Node.js and Ruby)
-./install-asdf.sh        # Installs mise
+./install-mise.sh        # Installs mise
 
 # Development tools
 ./install-nodejs.sh      # Node.js (via mise)
@@ -497,7 +497,7 @@ If your Hyprland customizations aren't working after an omarchy update:
 ```
 omarchy-supplement/
 ├── install-all.sh              # Master installation script (idempotent)
-├── install-asdf.sh             # Install mise version manager
+├── install-mise.sh             # Install mise version manager
 ├── install-nodejs.sh           # Install Node.js via mise
 ├── install-ruby.sh             # Install Ruby via mise
 ├── install-postgresql.sh       # Install and configure PostgreSQL

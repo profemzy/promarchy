@@ -1,6 +1,35 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log_info() { echo -e "[INFO] $1"; }
+log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+
+# Track failures
+declare -a FAILED_PACKAGES=()
+
+cleanup() {
+    local exit_code=$?
+    if [ ${#FAILED_PACKAGES[@]} -gt 0 ]; then
+        echo ""
+        log_warning "Some packages failed to install:"
+        printf '  - %s\n' "${FAILED_PACKAGES[@]}"
+    fi
+    if [ $exit_code -ne 0 ]; then
+        log_error "DevOps tools installation encountered errors."
+    fi
+    exit $exit_code
+}
+
+trap cleanup EXIT
 
 echo "Installing DevOps tools..."
 echo ""
@@ -16,13 +45,17 @@ install_if_missing() {
     local package=$2
 
     if command_exists "$cmd"; then
-        echo "✓ $cmd is already installed"
+        log_success "$cmd is already installed"
         return 0
     fi
 
-    echo "Installing $package..."
-    yay -S --noconfirm --needed "$package"
-    echo "✓ $package installed successfully"
+    log_info "Installing $package..."
+    if ! yay -S --noconfirm --needed "$package"; then
+        log_error "Failed to install $package"
+        FAILED_PACKAGES+=("$package")
+        return 1
+    fi
+    log_success "$package installed successfully"
 }
 
 # Kubernetes tools

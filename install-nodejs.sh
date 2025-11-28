@@ -1,22 +1,69 @@
 #!/bin/bash
 
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# Version configuration
+NODE_VERSION="25"
+
+log_info() { echo -e "[INFO] $1"; }
+log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+
+cleanup() {
+    local exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        log_error "Node.js installation failed. Check the error above."
+    fi
+    exit $exit_code
+}
+
+trap cleanup EXIT
+
 # Check if mise is installed
 if ! command -v mise &>/dev/null; then
-    echo "mise is not installed. Please run ./install-asdf.sh first."
+    # Try the local bin path
+    if [ -x "$HOME/.local/bin/mise" ]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    else
+        log_error "mise is not installed. Please run ./install-mise.sh first."
+        exit 1
+    fi
+fi
+
+log_info "Installing Node.js build dependencies..."
+if ! yay -S --noconfirm --needed base-devel openssl zlib; then
+    log_error "Failed to install build dependencies"
     exit 1
 fi
 
-# Install nodejs build dependencies
-yay -S --noconfirm --needed base-devel openssl zlib
-
-# Install nodejs version from .tool-versions if it exists
+# Install nodejs version from .tool-versions or mise.toml if it exists
 if [ -f ~/.tool-versions ] && grep -q "nodejs" ~/.tool-versions; then
-    echo "Installing Node.js from .tool-versions..."
-    mise install nodejs
+    log_info "Installing Node.js from .tool-versions..."
+    if ! mise install nodejs; then
+        log_error "Failed to install Node.js from .tool-versions"
+        exit 1
+    fi
+elif [ -f mise.toml ] && grep -q "node" mise.toml; then
+    log_info "Installing Node.js from mise.toml..."
+    if ! mise install node; then
+        log_error "Failed to install Node.js from mise.toml"
+        exit 1
+    fi
 else
-    echo "Installing latest LTS Node.js (v22)..."
-    mise install nodejs@22
-    mise use -g nodejs@22
+    log_info "Installing Node.js v${NODE_VERSION}..."
+    if ! mise install node@${NODE_VERSION}; then
+        log_error "Failed to install Node.js v${NODE_VERSION}"
+        exit 1
+    fi
+    if ! mise use -g node@${NODE_VERSION}; then
+        log_error "Failed to set Node.js v${NODE_VERSION} as global default"
+        exit 1
+    fi
 fi
 
-echo "Node.js installation complete!"
+log_success "Node.js installation complete!"
