@@ -63,6 +63,14 @@ if [ -e ~/.config/ghostty/config ] && [ ! -L ~/.config/ghostty/config ]; then
     rm -rf ~/.config/ghostty/config
 fi
 
+# Hyprland Omarchy override configs - only remove if not symlinks
+for hypr_conf in looknfeel.conf bindings.conf input.conf monitors.conf; do
+    if [ -e ~/.config/hypr/"$hypr_conf" ] && [ ! -L ~/.config/hypr/"$hypr_conf" ]; then
+        log_info "Removing old hyprland config: $hypr_conf (not a symlink)"
+        rm -f ~/.config/hypr/"$hypr_conf"
+    fi
+done
+
 # Always remove cache/data directories (should be regenerated)
 log_info "Cleaning caches..."
 rm -rf ~/.local/share/nvim/ ~/.cache/nvim/
@@ -72,7 +80,7 @@ cd "$DOTFILES_DIR" || exit 1
 log_info "Applying dotfiles with stow..."
 
 # Apply each stow package with error handling
-for pkg in zshrc ghostty tmux nvim starship; do
+for pkg in zshrc ghostty tmux nvim starship hyprland; do
     if [ -d "$pkg" ]; then
         if ! stow "$pkg"; then
             log_error "Failed to stow: $pkg"
