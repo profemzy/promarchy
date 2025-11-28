@@ -33,6 +33,7 @@ This ensures all your customizations **persist through omarchy updates** without
 
 **GitOps & CD:**
 - **argocd** - GitOps continuous delivery
+- **flux** - Flux GitOps operator
 
 **Infrastructure as Code:**
 - **terraform** - Infrastructure as Code tool
@@ -335,6 +336,7 @@ stern <pod-name>                 # Tail logs from multiple pods
 argocd login <server>            # Login to ArgoCD server
 argocd app list                  # List applications
 argocd app sync <app-name>       # Sync application
+flux check --pre                 # Check prerequisites for Flux
 ```
 
 **Terraform:**
