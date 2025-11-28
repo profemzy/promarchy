@@ -18,8 +18,8 @@ This ensures all your customizations **persist through omarchy updates** without
 - **stow** - Symlink farm manager for dotfiles
 
 ### Development Environments
-- **Node.js** (v25.2.1) - JavaScript/TypeScript runtime
-- **Ruby** (v3.4.7) - Ruby programming language
+- **Node.js** (v25.2.1) - JavaScript/TypeScript runtime (managed by mise)
+- **Ruby** (v3.4.7) - Ruby programming language (managed by mise)
 - **PostgreSQL** - Relational database with user setup
 
 ### DevOps Tools
@@ -123,8 +123,8 @@ You can also install components individually:
 ./install-asdf.sh        # Installs mise
 
 # Development tools
-./install-nodejs.sh      # Node.js v25 LTS
-./install-ruby.sh        # Ruby 3.4.7
+./install-nodejs.sh      # Node.js (via mise)
+./install-ruby.sh        # Ruby (via mise)
 ./install-postgresql.sh  # PostgreSQL database
 
 # DevOps tools
@@ -201,22 +201,73 @@ To switch themes, use omarchy's built-in theme switcher - no manual Ghostty conf
 
 ### Version Management with mise
 
-The `.tool-versions` file in your home directory specifies tool versions:
+mise is a fast, polyglot version manager (written in Rust) that replaces asdf. It manages different versions of programming languages and tools per-project or globally.
 
-```
-nodejs 25.2.1
-ruby 3.4.7
+#### Configuration Files
+
+mise uses two types of configuration:
+
+**Global config** (`~/.config/mise/config.toml`):
+```toml
+[tools]
+node = "25"
+ruby = "3.4.7"
+bun = "latest"
+go = "latest"
 ```
 
-**Common mise commands:**
+**Project config** (`mise.toml` in project directory):
+```toml
+[tools]
+node = "25"
+```
+
+Projects can override global settings by having their own `mise.toml` file.
+
+#### Common Commands
+
+**Install versions:**
 ```bash
-mise install              # Install all tools from .tool-versions
-mise install nodejs@25    # Install specific version
-mise use nodejs@25        # Set version for current directory
-mise use -g nodejs@25     # Set version globally
-mise list                 # Show installed versions
-mise current              # Show active versions
+mise install                 # Install all tools from config
+mise install node@25         # Install specific version
+mise install node@latest     # Install latest version
 ```
+
+**Set versions:**
+```bash
+mise use -g node@25          # Set globally (~/.config/mise/config.toml)
+mise use node@18             # Set for current project (creates mise.toml)
+```
+
+**View versions:**
+```bash
+mise current                 # Show active versions in current directory
+mise ls                      # List all installed versions
+mise ls node                 # List installed node versions
+```
+
+**Update tools:**
+```bash
+mise upgrade                 # Upgrade all tools to latest versions
+mise upgrade node            # Upgrade only node
+```
+
+#### Per-Project Version Management
+
+When you enter a directory with a `mise.toml` file, mise automatically switches to those versions:
+
+```bash
+cd ~/my-project              # mise detects mise.toml and switches versions
+node --version               # Shows the project's node version
+```
+
+#### Quick Tips
+
+- mise is **much faster** than asdf (written in Rust vs shell scripts)
+- mise can read `.tool-versions` files (asdf format) for compatibility
+- Changes take effect immediately - no need to restart your shell
+- Global versions are overridden by project-specific versions
+- Use `mise doctor` to check your setup
 
 ### Shell Aliases
 
@@ -394,7 +445,14 @@ cat ~/.config/omarchy/current/theme/ghostty.conf
 ```bash
 mise install ruby@3.4.7
 # or
-mise install  # Install all from .tool-versions
+mise install  # Install all from config
+```
+
+**Check your configuration:**
+```bash
+mise doctor  # Verify mise setup
+mise current # Show what versions are expected
+mise ls      # Show what versions are installed
 ```
 
 ### PostgreSQL Connection Issues
@@ -467,8 +525,8 @@ These files are **safe to edit** and will **persist through omarchy updates**.
 ## Version Information
 
 ### Development Tools
-- **Node.js**: 25.2.1 (specified in ~/.tool-versions)
-- **Ruby**: 3.4.7 (specified in ~/.tool-versions)
+- **Node.js**: 25 (managed by mise, configured in ~/.config/mise/config.toml)
+- **Ruby**: 3.4.7 (managed by mise, configured in ~/.config/mise/config.toml)
 - **PostgreSQL**: Latest stable from Arch repos
 - **mise**: Latest from https://mise.run
 
