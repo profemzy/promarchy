@@ -16,6 +16,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DRY_RUN=false
 VERBOSE=false
 
+# Components to skip
+declare -a SKIP_COMPONENTS=()
+
 # Track what would be/was installed
 declare -a WILL_INSTALL=()
 declare -a WILL_SKIP=()
@@ -47,6 +50,9 @@ cleanup() {
 
 trap cleanup EXIT
 
+# Available components (for --skip validation)
+AVAILABLE_COMPONENTS="zsh mise nodejs ruby postgresql ghostty tmux stow dotfiles hyprland devops shell"
+
 # Usage information
 usage() {
     cat << EOF
@@ -55,17 +61,55 @@ Usage: $(basename "$0") [OPTIONS]
 Omarchy Supplement Installation Script
 
 OPTIONS:
-    -n, --dry-run    Show what would be installed without making changes
-    -v, --verbose    Show detailed output during installation
-    -h, --help       Show this help message
+    -n, --dry-run        Show what would be installed without making changes
+    -s, --skip COMP      Skip component(s). Can be used multiple times or comma-separated
+    -v, --verbose        Show detailed output during installation
+    -h, --help           Show this help message
+
+AVAILABLE COMPONENTS (for --skip):
+    zsh         Zsh shell
+    mise        mise version manager
+    nodejs      Node.js runtime
+    ruby        Ruby runtime
+    postgresql  PostgreSQL database
+    ghostty     Ghostty terminal
+    tmux        tmux terminal multiplexer
+    stow        GNU stow
+    dotfiles    Dotfiles configuration
+    hyprland    Hyprland info/overrides
+    devops      DevOps tools (kubectl, helm, terraform, etc.)
+    shell       Set Zsh as default shell
 
 EXAMPLES:
-    $(basename "$0")              # Run full installation
-    $(basename "$0") --dry-run    # Preview what would be installed
-    $(basename "$0") -n -v        # Verbose dry-run
+    $(basename "$0")                          # Run full installation
+    $(basename "$0") --dry-run                # Preview what would be installed
+    $(basename "$0") --skip postgresql        # Skip PostgreSQL installation
+    $(basename "$0") -s postgresql,ruby       # Skip multiple components
+    $(basename "$0") -s postgresql -s devops  # Skip using multiple flags
 
 EOF
     exit 0
+}
+
+# Validate component name
+validate_component() {
+    local comp=$1
+    if [[ ! " $AVAILABLE_COMPONENTS " =~ " $comp " ]]; then
+        log_error "Unknown component: $comp"
+        echo "Available components: $AVAILABLE_COMPONENTS"
+        exit 1
+    fi
+}
+
+# Check if component should be skipped
+should_skip() {
+    local comp=$1
+    for skip in "${SKIP_COMPONENTS[@]}"; do
+        if [[ "$skip" == "$comp" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 # Parse command line arguments
@@ -75,6 +119,19 @@ parse_args() {
             -n|--dry-run)
                 DRY_RUN=true
                 shift
+                ;;
+            -s|--skip)
+                if [[ -z "${2:-}" ]]; then
+                    log_error "--skip requires a component name"
+                    exit 1
+                fi
+                # Handle comma-separated values
+                IFS=',' read -ra COMPS <<< "$2"
+                for comp in "${COMPS[@]}"; do
+                    validate_component "$comp"
+                    SKIP_COMPONENTS+=("$comp")
+                done
+                shift 2
                 ;;
             -v|--verbose)
                 VERBOSE=true
@@ -127,8 +184,17 @@ run_if_needed() {
     local check_cmd=$2
     local step_num=$3
     local step_name=$4
+    local component_id=$5
 
     log_step "$step_num" "$step_name..."
+
+    # Check if component should be skipped
+    if should_skip "$component_id"; then
+        log_warning "Skipped by user (--skip $component_id)"
+        WILL_SKIP+=("$step_name (skipped)")
+        echo ""
+        return 0
+    fi
 
     local needs_install=true
     if [ -n "$check_cmd" ] && eval "$check_cmd" 2>/dev/null; then
@@ -192,29 +258,29 @@ main() {
     fi
 
     # Install all packages in order
-    run_if_needed "install-zsh.sh" "command_exists zsh" "1/12" "Zsh"
+    run_if_needed "install-zsh.sh" "command_exists zsh" "1/12" "Zsh" "zsh"
 
-    run_if_needed "install-mise.sh" "command_exists mise" "2/12" "mise (version manager)"
+    run_if_needed "install-mise.sh" "command_exists mise" "2/12" "mise (version manager)" "mise"
 
-    run_if_needed "install-nodejs.sh" "command_exists node" "3/12" "Node.js"
+    run_if_needed "install-nodejs.sh" "command_exists node" "3/12" "Node.js" "nodejs"
 
-    run_if_needed "install-ruby.sh" "command_exists ruby" "4/12" "Ruby"
+    run_if_needed "install-ruby.sh" "command_exists ruby" "4/12" "Ruby" "ruby"
 
-    run_if_needed "install-postgresql.sh" "command_exists psql" "5/12" "PostgreSQL"
+    run_if_needed "install-postgresql.sh" "command_exists psql" "5/12" "PostgreSQL" "postgresql"
 
-    run_if_needed "install-ghostty.sh" "command_exists ghostty" "6/12" "Ghostty terminal"
+    run_if_needed "install-ghostty.sh" "command_exists ghostty" "6/12" "Ghostty terminal" "ghostty"
 
-    run_if_needed "install-tmux.sh" "command_exists tmux" "7/12" "tmux"
+    run_if_needed "install-tmux.sh" "command_exists tmux" "7/12" "tmux" "tmux"
 
-    run_if_needed "install-stow.sh" "command_exists stow" "8/12" "stow"
+    run_if_needed "install-stow.sh" "command_exists stow" "8/12" "stow" "stow"
 
-    run_if_needed "install-dotfiles.sh" "[ -d ~/dotfiles ]" "9/12" "Dotfiles"
+    run_if_needed "install-dotfiles.sh" "[ -d ~/dotfiles ]" "9/12" "Dotfiles" "dotfiles"
 
-    run_if_needed "install-hyprland-overrides.sh" "" "10/12" "Hyprland info"
+    run_if_needed "install-hyprland-overrides.sh" "" "10/12" "Hyprland info" "hyprland"
 
-    run_if_needed "install-devops-tools.sh" "" "11/12" "DevOps tools"
+    run_if_needed "install-devops-tools.sh" "" "11/12" "DevOps tools" "devops"
 
-    run_if_needed "set-shell.sh" "[ \"\$SHELL\" = \"\$(which zsh 2>/dev/null)\" ]" "12/12" "Set default shell"
+    run_if_needed "set-shell.sh" "[ \"\$SHELL\" = \"\$(which zsh 2>/dev/null)\" ]" "12/12" "Set default shell" "shell"
 
     # Summary
     echo "==================================="
